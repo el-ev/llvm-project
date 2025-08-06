@@ -287,7 +287,8 @@ define i32 @ceil_shift_should_infer_ge_zero(i32 %x) {
 ; CHECK-NEXT:    [[TMP3:%.*]] = icmp ne i32 [[TMP2]], 0
 ; CHECK-NEXT:    [[TMP4:%.*]] = zext i1 [[TMP3]] to i32
 ; CHECK-NEXT:    [[TMP5:%.*]] = add nuw nsw i32 [[TMP1]], [[TMP4]]
-; CHECK-NEXT:    ret i32 [[TMP5]]
+; CHECK-NEXT:    [[MAX:%.*]] = call i32 @llvm.umax.i32(i32 [[TMP5]], i32 1)
+; CHECK-NEXT:    ret i32 [[MAX]]
 ; CHECK:       [[IF_ELSE]]:
 ; CHECK-NEXT:    ret i32 0
 ;

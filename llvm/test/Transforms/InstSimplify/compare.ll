@@ -1028,7 +1028,11 @@ define i1 @urem11(i8 %X, i8 %Y) {
 ; PR9343 #15
 define i1 @srem2(i16 %X, i32 %Y) {
 ; CHECK-LABEL: @srem2(
-; CHECK-NEXT:    ret i1 false
+; CHECK-NEXT:    [[A:%.*]] = zext i16 [[X:%.*]] to i32
+; CHECK-NEXT:    [[B:%.*]] = add nsw i32 [[A]], 1
+; CHECK-NEXT:    [[C:%.*]] = srem i32 [[B]], [[Y:%.*]]
+; CHECK-NEXT:    [[D:%.*]] = icmp slt i32 [[C]], 0
+; CHECK-NEXT:    ret i1 [[D]]
 ;
   %A = zext i16 %X to i32
   %B = add nsw i32 %A, 1
@@ -1039,7 +1043,12 @@ define i1 @srem2(i16 %X, i32 %Y) {
 
 define i1 @srem2v(<2 x i16> %X, <2 x i32> %Y) {
 ; CHECK-LABEL: @srem2v(
-; CHECK-NEXT:    ret i1 false
+; CHECK-NEXT:    [[A:%.*]] = zext <2 x i16> [[X:%.*]] to <2 x i32>
+; CHECK-NEXT:    [[B:%.*]] = add nsw <2 x i32> [[A]], <i32 1, i32 0>
+; CHECK-NEXT:    [[C:%.*]] = srem <2 x i32> [[B]], [[Y:%.*]]
+; CHECK-NEXT:    [[D:%.*]] = extractelement <2 x i32> [[C]], i32 0
+; CHECK-NEXT:    [[E:%.*]] = icmp slt i32 [[D]], 0
+; CHECK-NEXT:    ret i1 [[E]]
 ;
   %A = zext <2 x i16> %X to <2 x i32>
   %B = add nsw <2 x i32> %A, <i32 1, i32 0>
@@ -1051,7 +1060,12 @@ define i1 @srem2v(<2 x i16> %X, <2 x i32> %Y) {
 
 define i1 @srem3(i16 %X, i32 %Y) {
 ; CHECK-LABEL: @srem3(
-; CHECK-NEXT:    ret i1 false
+; CHECK-NEXT:    [[A:%.*]] = zext i16 [[X:%.*]] to i32
+; CHECK-NEXT:    [[B:%.*]] = or i32 -2147483648, [[A]]
+; CHECK-NEXT:    [[C:%.*]] = sub nsw i32 1, [[B]]
+; CHECK-NEXT:    [[D:%.*]] = srem i32 [[C]], [[Y:%.*]]
+; CHECK-NEXT:    [[E:%.*]] = icmp slt i32 [[D]], 0
+; CHECK-NEXT:    ret i1 [[E]]
 ;
   %A = zext i16 %X to i32
   %B = or i32 2147483648, %A
@@ -1063,7 +1077,12 @@ define i1 @srem3(i16 %X, i32 %Y) {
 
 define i1 @srem3v(<2 x i16> %X, <2 x i32> %Y) {
 ; CHECK-LABEL: @srem3v(
-; CHECK-NEXT:    ret i1 false
+; CHECK-NEXT:    [[A:%.*]] = zext <2 x i16> [[X:%.*]] to <2 x i32>
+; CHECK-NEXT:    [[B:%.*]] = or <2 x i32> <i32 1, i32 -2147483648>, [[A]]
+; CHECK-NEXT:    [[C:%.*]] = sub nsw <2 x i32> <i32 0, i32 1>, [[B]]
+; CHECK-NEXT:    [[E:%.*]] = extractelement <2 x i32> [[C]], i32 1
+; CHECK-NEXT:    [[F:%.*]] = icmp slt i32 [[E]], 0
+; CHECK-NEXT:    ret i1 [[F]]
 ;
   %A = zext <2 x i16> %X to <2 x i32>
   %B = or <2 x i32> <i32 1, i32 2147483648>, %A
@@ -1280,7 +1299,10 @@ define i1 @mul1v(<2 x i32> %X) {
 ; Square of a non-zero number is positive if there is no signed overflow.
 define i1 @mul2(i32 %X) {
 ; CHECK-LABEL: @mul2(
-; CHECK-NEXT:    ret i1 true
+; CHECK-NEXT:    [[Y:%.*]] = or i32 [[X:%.*]], 1
+; CHECK-NEXT:    [[M:%.*]] = mul nsw i32 [[Y]], [[Y]]
+; CHECK-NEXT:    [[C:%.*]] = icmp sgt i32 [[M]], 0
+; CHECK-NEXT:    ret i1 [[C]]
 ;
   %Y = or i32 %X, 1
   %M = mul nsw i32 %Y, %Y
@@ -1290,7 +1312,11 @@ define i1 @mul2(i32 %X) {
 
 define i1 @mul2v(<2 x i32> %X) {
 ; CHECK-LABEL: @mul2v(
-; CHECK-NEXT:    ret i1 true
+; CHECK-NEXT:    [[Y:%.*]] = or <2 x i32> [[X:%.*]], <i32 0, i32 1>
+; CHECK-NEXT:    [[M:%.*]] = mul nsw <2 x i32> [[Y]], [[Y]]
+; CHECK-NEXT:    [[E:%.*]] = extractelement <2 x i32> [[M]], i32 1
+; CHECK-NEXT:    [[C:%.*]] = icmp sgt i32 [[E]], 0
+; CHECK-NEXT:    ret i1 [[C]]
 ;
   %Y = or <2 x i32> %X, <i32 0, i32 1>
   %M = mul nsw <2 x i32> %Y, %Y
@@ -1859,7 +1885,9 @@ define <2 x i1> @icmp_shl_1_ugt_signmask_poison(<2 x i8> %V) {
 
 define <2 x i1> @icmp_shl_1_ugt_signmask_poison2(<2 x i8> %V) {
 ; CHECK-LABEL: @icmp_shl_1_ugt_signmask_poison2(
-; CHECK-NEXT:    ret <2 x i1> zeroinitializer
+; CHECK-NEXT:    [[SHL:%.*]] = shl <2 x i8> <i8 1, i8 poison>, [[V:%.*]]
+; CHECK-NEXT:    [[CMP:%.*]] = icmp ugt <2 x i8> [[SHL]], <i8 poison, i8 -128>
+; CHECK-NEXT:    ret <2 x i1> [[CMP]]
 ;
   %shl = shl <2 x i8> <i8 1, i8 poison>, %V
   %cmp = icmp ugt <2 x i8> %shl, <i8 poison, i8 128>

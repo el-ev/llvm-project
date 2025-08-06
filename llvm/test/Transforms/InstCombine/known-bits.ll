@@ -536,7 +536,8 @@ define i1 @test_icmp_or_distjoint(i8 %n, i1 %other) {
 ; CHECK-NEXT:    [[CMP:%.*]] = icmp ugt i8 [[N_OR]], -111
 ; CHECK-NEXT:    br i1 [[CMP]], label [[IF_THEN:%.*]], label [[IF_ELSE:%.*]]
 ; CHECK:       if.then:
-; CHECK-NEXT:    ret i1 true
+; CHECK-NEXT:    [[R:%.*]] = icmp slt i8 [[N]], 0
+; CHECK-NEXT:    ret i1 [[R]]
 ; CHECK:       if.else:
 ; CHECK-NEXT:    ret i1 [[OTHER:%.*]]
 ;

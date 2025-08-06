@@ -14,7 +14,9 @@ define i1 @test_umax1(i32 %n) {
 define i1 @test_umax2(i32 %n) {
 ; CHECK-LABEL: @test_umax2(
 ; CHECK-NEXT:    [[C1:%.*]] = icmp ugt i32 [[N:%.*]], 10
-; CHECK-NEXT:    ret i1 [[C1]]
+; CHECK-NEXT:    [[S:%.*]] = select i1 [[C1]], i32 [[N]], i32 10
+; CHECK-NEXT:    [[C2:%.*]] = icmp ugt i32 [[S]], 10
+; CHECK-NEXT:    ret i1 [[C2]]
 ;
   %c1 = icmp ugt i32 %n, 10
   %s = select i1 %c1, i32 %n, i32 10
@@ -48,7 +50,9 @@ define i1 @test_umin1(i32 %n) {
 define i1 @test_umin2(i32 %n) {
 ; CHECK-LABEL: @test_umin2(
 ; CHECK-NEXT:    [[C1:%.*]] = icmp ult i32 [[N:%.*]], 10
-; CHECK-NEXT:    ret i1 [[C1]]
+; CHECK-NEXT:    [[S:%.*]] = select i1 [[C1]], i32 [[N]], i32 10
+; CHECK-NEXT:    [[C2:%.*]] = icmp ult i32 [[S]], 10
+; CHECK-NEXT:    ret i1 [[C2]]
 ;
   %c1 = icmp ult i32 %n, 10
   %s = select i1 %c1, i32 %n, i32 10
@@ -82,7 +86,9 @@ define i1 @test_smax1(i32 %n) {
 define i1 @test_smax2(i32 %n) {
 ; CHECK-LABEL: @test_smax2(
 ; CHECK-NEXT:    [[C1:%.*]] = icmp sgt i32 [[N:%.*]], -10
-; CHECK-NEXT:    ret i1 [[C1]]
+; CHECK-NEXT:    [[S:%.*]] = select i1 [[C1]], i32 [[N]], i32 -10
+; CHECK-NEXT:    [[C2:%.*]] = icmp sgt i32 [[S]], -10
+; CHECK-NEXT:    ret i1 [[C2]]
 ;
   %c1 = icmp sgt i32 %n, -10
   %s = select i1 %c1, i32 %n, i32 -10
@@ -116,7 +122,9 @@ define i1 @test_smin1(i32 %n) {
 define i1 @test_smin2(i32 %n) {
 ; CHECK-LABEL: @test_smin2(
 ; CHECK-NEXT:    [[C1:%.*]] = icmp slt i32 [[N:%.*]], 10
-; CHECK-NEXT:    ret i1 [[C1]]
+; CHECK-NEXT:    [[S:%.*]] = select i1 [[C1]], i32 [[N]], i32 10
+; CHECK-NEXT:    [[C2:%.*]] = icmp slt i32 [[S]], 10
+; CHECK-NEXT:    ret i1 [[C2]]
 ;
   %c1 = icmp slt i32 %n, 10
   %s = select i1 %c1, i32 %n, i32 10
